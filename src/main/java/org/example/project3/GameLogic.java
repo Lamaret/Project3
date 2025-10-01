@@ -1,32 +1,50 @@
 package org.example.project3;
 
+import static org.example.project3.constants.GameConstants.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.example.project3.constants.GameConstants.*;
+
 public class GameLogic {
 
-    public String process(String step, String choice) {
-        if ("start".equals(step)) {
-            if ("accept".equals(choice)) {
-                return "bridge";
-            } else if ("decline".equals(choice)) {
-                return "defeat:Ви відхилили виклик.";
+    private static final Logger logger = LoggerFactory.getLogger(GameLogic.class);
+
+    public String getNextStep(String currentStep, String choice) {
+        logger.info("Обработка шага: {}, выбор игрока: {}", currentStep, choice);
+
+        if (STEP_START.equals(currentStep)) {
+            if (CHOICE_ACCEPT.equals(choice)) {
+                logger.debug("Игрок принял вызов.");
+                return STEP_BRIDGE;
+            } else if (CHOICE_DECLINE.equals(choice)) {
+                logger.warn("Игрок отклонил вызов.");
+                return DEFEAT + ":" + MSG_DECLINE;
             }
         }
 
-        if ("bridge".equals(step)) {
-            if ("go".equals(choice)) {
-                return "identity";
-            } else if ("refuse".equals(choice)) {
-                return "defeat:Ви не пішли на переговори.";
+        if (STEP_BRIDGE.equals(currentStep)) {
+            if (CHOICE_GO.equals(choice)) {
+                logger.debug("Игрок идет на мостик.");
+                return STEP_IDENTITY;
+            } else if (CHOICE_REFUSE.equals(choice)) {
+                logger.warn("Игрок отказался идти на мостик.");
+                return DEFEAT + ":" + MSG_REFUSE;
             }
         }
 
-        if ("identity".equals(step)) {
-            if ("truth".equals(choice)) {
-                return "victory:Вас повернули додому.";
-            } else if ("lie".equals(choice)) {
-                return "defeat:Ваша брехня була викрита.";
+        if (STEP_IDENTITY.equals(currentStep)) {
+            if (CHOICE_TRUTH.equals(choice)) {
+                logger.info("Игрок сказал правду.");
+                return VICTORY + ":" + MSG_TRUTH;
+            } else if (CHOICE_LIE.equals(choice)) {
+                logger.warn("Игрок солгал.");
+                return DEFEAT + ":" + MSG_LIE;
             }
         }
 
-        return "defeat:Невідомий вибір.";
+        logger.error("Неизвестный шаг или выбор: step={}, choice={}", currentStep, choice);
+        return DEFEAT + ":" + MSG_UNKNOWN;
     }
 }
